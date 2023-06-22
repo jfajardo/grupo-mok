@@ -1,0 +1,37 @@
+version: '3'
+services:
+  django-app:
+    build:
+      context: .
+      dockerfile: ./django_project/Dockerfile
+    command: python /app/django_project/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    environment:
+      - DB_POSTGRES_NAME=$DB_POSTGRES_NAME
+      - DB_POSTGRES_USER=$DB_POSTGRES_USER
+      - DB_POSTGRES_PASSWORD=$DB_POSTGRES_PASSWORD
+      - DB_POSTGRES_HOST=$DB_POSTGRES_HOST
+      - DB_POSTGRES_PORT=$DB_POSTGRES_PORT
+    networks:
+      - private_network
+  flask-app:
+    build:
+      context: .
+      dockerfile: ./flask_app/Dockerfile
+    command: python /app/flask_app/main.py
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    networks:
+      - private_network
+    environment:
+      - DJANGO_API_URL=http://host.docker.internal:8000
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=8080
+
+networks:
+  private_network:
